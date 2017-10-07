@@ -1,10 +1,9 @@
-//import liraries
 import React, { Component } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import TabViewFooter from "../../components/TabViewFooter";
 import Router from "../../router";
+import MapContainer from "../../containers/MapContainer";
 
-// create a component
 class HomeScreen extends Component {
     popScreen() {
         this.props.navigator.pop();
@@ -18,14 +17,13 @@ class HomeScreen extends Component {
         return (
             <TabViewFooter tabBarPosition={"bottom"}>
                 <View tabLabel="ios-people" />
-                <View tabLabel="ios-pin" />
+                <MapContainer tabLabel="ios-pin" />
                 <View tabLabel="ios-cog" />
             </TabViewFooter>
         );
     }
 }
 
-// define your styles
 const styles = StyleSheet.create({
     container: {
         flex: 1,

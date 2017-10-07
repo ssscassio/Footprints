@@ -8,7 +8,9 @@
     - Módulo utilizado para navegação em Abas na tela principal
 - **[react-native-vector-icons](https://github.com/oblador/react-native-vector-icons)**
     - Módulo utilizado para os icones internos do aplicativo
-        - IonIcons 
+        - IonIcons
+- **[react-native-maps](https://github.com/airbnb/react-native-maps)**
+    - Módulo utilizado para renderizar os mapas e a localização dos usários nas respectivas plataformas (iOS e android)
 
 #### Observações
 - Este projeto está utilizando o gerenciador de dependências [**yarn**](https://yarnpkg.com/pt-BR/)
