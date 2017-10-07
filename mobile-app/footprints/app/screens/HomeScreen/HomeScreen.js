@@ -1,14 +1,26 @@
 //import liraries
 import React, { Component } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import TabViewFooter from "../../components/TabViewFooter";
+import Router from "../../router";
 
 // create a component
 class HomeScreen extends Component {
+    popScreen() {
+        this.props.navigator.pop();
+    }
+
+    pushScreen(screen, props) {
+        this.props.navigator.push(Router.getRoute(screen, props));
+    }
+
     render() {
         return (
-            <View style={styles.container}>
-                <Text>HomeScreen</Text>
-            </View>
+            <TabViewFooter tabBarPosition={"bottom"}>
+                <View tabLabel="ios-people" />
+                <View tabLabel="ios-pin" />
+                <View tabLabel="ios-cog" />
+            </TabViewFooter>
         );
     }
 }
