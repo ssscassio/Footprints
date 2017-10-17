@@ -1,0 +1,27 @@
+{
+  "name": "footprints",
+  "version": "1.0.0",
+  "description": "Footprints node.js backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ssscassio/footprints.git"
+  },
+  "keywords": [
+    "nodejs",
+    "footprints",
+    "backend"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ssscassio/footprints/issues"
+  },
+  "homepage": "https://github.com/ssscassio/footprints#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
