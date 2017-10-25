@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">footprints</string>
+    <string name="fb_app_id">291172031375979</string>
+    <string name="fb_login_protocol_scheme">fb291172031375979</string>
 </resources>

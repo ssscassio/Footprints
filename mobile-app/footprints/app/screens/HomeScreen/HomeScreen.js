@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet} from "react-native";
 import TabViewFooter from "../../components/TabViewFooter";
 import Router from "../../router";
 import MapContainer from "../../containers/MapContainer";
+import SettingsContainer from "../../containers/SettingsContainer";
 
 class HomeScreen extends Component {
     popScreen() {
@@ -18,7 +19,7 @@ class HomeScreen extends Component {
             <TabViewFooter tabBarPosition={"bottom"}>
                 <View tabLabel="ios-people" />
                 <MapContainer tabLabel="ios-pin" />
-                <View tabLabel="ios-cog" />
+                <SettingsContainer tabLabel="ios-cog" />
             </TabViewFooter>
         );
     }

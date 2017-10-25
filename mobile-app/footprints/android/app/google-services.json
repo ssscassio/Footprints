@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "855974838992",
+    "firebase_url": "https://footprints-fb.firebaseio.com",
+    "project_id": "footprints-fb",
+    "storage_bucket": "footprints-fb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855974838992:android:b53eea4f358f996b",
+        "android_client_info": {
+          "package_name": "com.footprints"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "855974838992-p611je3ukhkd5vmld5fgncf7duo2ojk8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.footprints",
+            "certificate_hash": "5396284c33f6335697426ae864b6f0e3b9782fda"
+          }
+        },
+        {
+          "client_id": "855974838992-oubh41lvtepgaaq28etu33u38aptme87.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqTyit7h9dZJPmy-eyIW9ncz5S2wvOXY4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855974838992-oubh41lvtepgaaq28etu33u38aptme87.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

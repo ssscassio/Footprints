@@ -5,6 +5,8 @@ import android.app.Application;
 import com.facebook.react.ReactApplication;
 import com.airbnb.android.react.maps.MapsPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
+import com.reactlibrary.googlesignin.RNGoogleSignInPackage; // Add this.
+import com.magus.fblogin.FacebookLoginPackage; // <--- import
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -26,7 +28,9 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
           new MapsPackage(),
-          new VectorIconsPackage()
+          new VectorIconsPackage(),
+          new RNGoogleSignInPackage(),
+          new FacebookLoginPackage() 
       );
     }
 

@@ -11,6 +11,8 @@
         - IonIcons
 - **[react-native-maps](https://github.com/airbnb/react-native-maps)**
     - Módulo utilizado para renderizar os mapas e a localização dos usários nas respectivas plataformas (iOS e android)
+- **[react-native-firebase-auth](https://github.com/SolidStateGroup/react-native-firebase-auth)**
+    - Módulo utilizado para autenticação com firebase
 
 #### Observações
 - Este projeto está utilizando o gerenciador de dependências [**yarn**](https://yarnpkg.com/pt-BR/)
