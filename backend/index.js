@@ -6,19 +6,19 @@ var bodyParser = require("body-parser");
 app.set("port", process.env.PORT || 3000);
 
 // footprints: footprintspassword;
-var connection = mysql.createConnection({
-  host: "mysql857.umbler.com",
-  user: "footprints",
-  password: "footprintspassword",
-  database: "footprints-db"
-});
-
 // var connection = mysql.createConnection({
-//   host: "localhost",
-//   user: "root",
-//   password: "root",
+//   host: "mysql857.umbler.com",
+//   user: "footprints",
+//   password: "footprintspassword",
 //   database: "footprints-db"
 // });
+
+var connection = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "root",
+  database: "footprints-db"
+});
 
 app.use(bodyParser.json());
 app.use(
@@ -157,6 +157,30 @@ app.post("/updateFriendship", function(req, res) {
             }
           });
         }
+      }
+    }
+  );
+});
+
+/**
+ * Request example:
+ * http://footprintsapp-xxx.umbler.net/userFriendsList/IAUSuyGUygUISdgaddf
+ * @param
+ * uid: FirebaseID of the user who you want to know the friends
+ * @returns
+ * Array with relation objects
+ */
+app.get("/userFriendsList/:uid", function(req, res) {
+  let uid = req.params.uid;
+
+  connection.query(
+    "SELECT * FROM friends WHERE inviter = ? AND status = ?;",
+    [uid, 0],
+    function(error, results, fields) {
+      if (error) {
+        res.send({ error: error });
+      } else {
+        res.send(results);
       }
     }
   );
