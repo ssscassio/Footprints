@@ -1,5 +1,11 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { 
+    View, 
+    Text, 
+    StyleSheet, 
+    Image, 
+    ActivityIndicator 
+} from "react-native";
 import TabViewFooter from "../../components/TabViewFooter";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FireAuth from 'react-native-firebase-auth';
@@ -10,11 +16,18 @@ class LoginScreen extends Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            loading: false
+        };
         FireAuth.init({
             clientID: '855974838992-5m2b3iebidgrg7lnc7pfj3ourvuddtpj.apps.googleusercontent.com',
             scopes: ['openid', 'email', 'profile'],
             shouldFetchBasicProfile: true
         });
+        this.onLogin = this.onLogin.bind(this)
+        this.onLogout = this.onLogout.bind(this)
+        this.loginWithFacebook = this.loginWithFacebook.bind(this)
+        this.loginWithGoogle = this.loginWithGoogle.bind(this)
     }
 
     popScreen() {
@@ -26,8 +39,9 @@ class LoginScreen extends Component {
     }
 
     onLogin = (user, val) => {
-        console.log(val);
-        console.log(user);
+        //console.log(val);
+        //console.log(user);
+        this.setState({ loading: false });
         this.pushScreen('home');
     }
     
@@ -51,19 +65,26 @@ class LoginScreen extends Component {
 
     componentDidMount() {
         FireAuth.setup(this.onLogin, this.onUserChange, this.onLogout, this.onEmailVerified, this.onError);
+        this.setState({ loading: true });
+        setInterval(() => {
+            this.setState({ loading: false });
+        }, 5000);
     }
 
     loginWithFacebook() {
+        this.setState({ loading: true });
         FireAuth.facebookLogin(['email', 'user_friends']);
     }
     
     loginWithGoogle() {
+        this.setState({ loading: true });
         FireAuth.googleLogin();
     }
 
     render() {
         return (
             <View style={styles.container}>
+            
                 <View style={styles.logo}>
                     <Image
                         style={{width: 300, height: 150}}
@@ -82,7 +103,16 @@ class LoginScreen extends Component {
                         </Icon.Button>
                     </View>
                 </View>
+                {this.state.loading &&
+                    <View style={styles.loading}>
+                        <ActivityIndicator 
+                            size='large' 
+                            color='blue'
+                        />
+                    </View>
+                }
             </View>
+            
         );
     }
 }
@@ -92,7 +122,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#2c3e50"
+        backgroundColor: "#f1f1f1"
     },
     logo: {
         flex: 2,
@@ -108,8 +138,20 @@ const styles = StyleSheet.create({
         margin: 10
     },
     iconBtn:{
-        width: 200,
-        height: 40
+        width: 190,
+        height: 45,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    loading: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F5FCFF88'
     }
 });
 

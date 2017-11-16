@@ -6,7 +6,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <uses-permission android:name="android.permisssion.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -18,9 +18,12 @@
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
       android:theme="@style/AppTheme">
+      
+      <!-- android:value="AIzaSyCyf9XHwoGcM0xhVAx78Cubt6lwm6Y-sHc" -->
       <meta-data
         android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyCyf9XHwoGcM0xhVAx78Cubt6lwm6Y-sHc"/>
+        android:value="AIzaSyDqDdgZIzFCsSur3_0fx5z3H1UxJ-FD2pc"
+        />
       <!--reference your fb_app_id-->
       <meta-data
         android:name="com.facebook.sdk.ApplicationId"

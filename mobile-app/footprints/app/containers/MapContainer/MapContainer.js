@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     map: {
-        ...StyleSheet.absoluteFillObject
+        ...StyleSheet.absoluteFillObject,
     }
 });
 
