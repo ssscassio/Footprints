@@ -153,7 +153,12 @@ dependencies {
     compile(project(":react-native-google-sign-in")) { // ADD this
         exclude group: "com.google.android.gms"
     } 
-    compile project(':react-native-maps')
+    compile(project(':react-native-maps')){
+        exclude group: 'com.google.android.gms', module: 'play-services-base'
+        exclude group: 'com.google.android.gms', module: 'play-services-maps'
+    }
+    compile 'com.google.android.gms:play-services-base:10.2.1'
+    compile 'com.google.android.gms:play-services-maps:10.2.1'
     compile project(':react-native-vector-icons')
     compile project(':react-native-facebook-login')
     compile fileTree(dir: "libs", include: ["*.jar"])

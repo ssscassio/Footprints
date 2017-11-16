@@ -23,9 +23,11 @@ class SettingsContainer extends Component {
 
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={FireAuth.logout}>
-                    <Text style={styles.settingText}>Logout</Text>
-                </TouchableOpacity>
+                <View style={styles.item}>
+                    <TouchableOpacity onPress={FireAuth.logout}>
+                        <Text style={styles.settingText}>Logout</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     }
@@ -34,13 +36,21 @@ class SettingsContainer extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexDirection: 'column',
         justifyContent: "flex-start",
-        alignItems: "flex-start",
-        padding: 20
+        alignItems: "stretch",
     },
     settingText: {
-        fontSize: 32,
-        fontFamily: 'arial'
+        fontSize: 28,
+        fontFamily: 'arial',
+        color: 'black',
+    },
+    item: {
+        borderBottomColor: '#bbb', 
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        marginTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 10
     }
 });
 
