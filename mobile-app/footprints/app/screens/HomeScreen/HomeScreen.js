@@ -4,6 +4,8 @@ import TabViewFooter from "../../components/TabViewFooter";
 import Router from "../../router";
 import MapContainer from "../../containers/MapContainer";
 import SettingsContainer from "../../containers/SettingsContainer";
+import UserContainer from "../../containers/UserContainer";
+
 
 class HomeScreen extends Component {
     popScreen() {
@@ -17,7 +19,7 @@ class HomeScreen extends Component {
     render() {
         return (
             <TabViewFooter tabBarPosition={"bottom"}>
-                <View tabLabel="ios-people" />
+                <UserContainer tabLabel="ios-people" />
                 <MapContainer tabLabel="ios-pin" />
                 <SettingsContainer tabLabel="ios-cog" />
             </TabViewFooter>

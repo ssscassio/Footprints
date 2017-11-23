@@ -3,6 +3,8 @@ package com.footprints;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.BV.LinearGradient.LinearGradientPackage;
+import com.reactlibrary.googlesignin.RNGoogleSignInPackage;
 import com.airbnb.android.react.maps.MapsPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.reactlibrary.googlesignin.RNGoogleSignInPackage; // Add this.
@@ -27,9 +29,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new LinearGradientPackage(),
+            new RNGoogleSignInPackage(),
           new MapsPackage(),
           new VectorIconsPackage(),
-          new RNGoogleSignInPackage(),
           new FacebookLoginPackage() 
       );
     }
