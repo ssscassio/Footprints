@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import MapView from "react-native-maps";
 import Images from "../../config/images";
+import Colors from "../../config/colors";
+import * as firebase from 'firebase';
 
 const { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -79,7 +81,6 @@ class MapContainer extends Component {
 
     _renderUserMarker() {
         let { latitude, longitude } = this.state.userLocation;
-        let size = 20;
 
         return (
             <MapView.Marker
@@ -88,13 +89,16 @@ class MapContainer extends Component {
                     latitude: parseFloat(latitude),
                     longitude: parseFloat(longitude)
                 }}
-                anchor={{ x: 0.5, y: 1 }}
+                anchor={{ x: 0.5, y: 0.5 }}
             >
                 <Image
-                    source={Images.userMark}
+                    source={{uri: firebase.auth().currentUser.photoURL}}
                     style={{
-                        width: size,
-                        height: size * markHeight / markWidth
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        borderWidth: 2,
+                        borderColor: Colors.primaryColor
                     }}
                 />
             </MapView.Marker>

@@ -41,6 +41,11 @@ class LoginScreen extends Component {
     onLogin = (user, val) => {
         //console.log(val);
         //console.log(user);
+        console.log(user.photoURL);
+        console.log(user.displayName);
+        console.log(user.email);
+        console.log(user.uid);
+
         this.setState({ loading: false });
         this.pushScreen('home');
     }
