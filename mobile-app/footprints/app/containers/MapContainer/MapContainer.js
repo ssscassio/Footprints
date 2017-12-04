@@ -10,7 +10,7 @@ import {
 import MapView from "react-native-maps";
 import Images from "../../config/images";
 import Colors from "../../config/colors";
-import * as firebase from 'firebase';
+import firebase from 'react-native-firebase';
 
 const { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
