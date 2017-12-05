@@ -15,6 +15,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Images from '../../config/images';
 import Colors from '../../config/colors';
 import Router from '../../router';
+import FriendsList from '../../components/FriendsList';
 import firebase from 'react-native-firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -23,58 +24,23 @@ class UserContainer extends Component {
         super(props);
 
         this.state = {
-            friends: true,
-            myFriends: [],
-            myPendingFriends: []
+            friends: true
         }
 
         this.goToAddFriendScreen = this.goToAddFriendScreen.bind(this);
     }
 
     componentDidMount() {
-        const myUID = firebase.auth().currentUser.uid;
-        const db = firebase.firestore();
+        console.log('UserContainer Did Mount');
+    }
 
-        db.collection('users').doc(myUID).get()
-            .then(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-
-                    if (data.friends == null) return;
-
-                    const pendingFriends = Object.keys(data.friends)
-                                                .filter(friendId => data.friends[friendId].pending);
-                    const confirmedFriends = Object.keys(data.friends)
-                                                .filter(friendId => !data.friends[friendId].pending);
-
-                    Promise.all([
-                        Promise.all(pendingFriends.map(uid => db.collection('users').doc(uid).get())),
-                        Promise.all(confirmedFriends.map(uid => db.collection('users').doc(uid).get())),
-                    ])
-                    .then(values => {
-                        let pendingFriends = values[0];
-                        let confirmedFriends = values[1];
-
-                        pendingFriends = pendingFriends.map(doc => doc.exists && Object.assign(doc.data(),{key:doc.id}));
-                        confirmedFriends = confirmedFriends.map(doc => doc.exists && Object.assign(doc.data(),{key:doc.id}));
-
-                        this.setState({ 
-                            myFriends: confirmedFriends, 
-                            myPendingFriends: pendingFriends
-                        });
-                    });   
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            });
-
+    componentDidUpdate() {
+        console.log('UserContainer Did Update')        
     }
 
     _keyExtractor = (item, index) => item.key || index;
 
     goToAddFriendScreen () {
-        console.log('here');
         this.props.navigator.push(Router.getRoute('addFriend'));
     }
 
@@ -91,16 +57,8 @@ class UserContainer extends Component {
         );
     }
 
-    renderSection = ({section}) => {
-        return (
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>{section.title}</Text>
-            </View>
-        );
-    }
-
     render() {
-
+        console.log('UserContainer Render');
         return (
             <View style={styles.container}>
                 <Image style={styles.header} source={Images.groupsBk}>
@@ -147,18 +105,7 @@ class UserContainer extends Component {
                                 renderItem={this.renderItem}
                             />
                         }
-                        { this.state.friends && 
-                            <SectionList
-                                renderItem={this.renderItem}
-                                renderSectionHeader={this.renderSection}
-                                extraData={this.state}
-                                keyExtractor={this._keyExtractor}
-                                sections={[ // homogeneous rendering between sections
-                                    {data: this.state.myFriends, title: 'Confirmados'},
-                                    {data: this.state.myPendingFriends, title: 'Pendentes'},
-                                ]}
-                            />
-                        }
+                        { this.state.friends && <FriendsList /> }
                         <View
                             elevation={3}
                             style={{
@@ -289,19 +236,6 @@ const styles = StyleSheet.create({
     groupPeople: {
         width: 300
     },
-    section: {
-        height: 22,
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        backgroundColor: 'rgba(247,247,247,1.0)',
-        padding: 10,
-        borderTopWidth: 0.3,
-    },
-    sectionTitle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: Colors.lightPrimaryColor
-    }
 });
 
 //make this component available to the app

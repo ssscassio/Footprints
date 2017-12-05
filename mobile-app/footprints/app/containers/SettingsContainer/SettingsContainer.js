@@ -21,7 +21,7 @@ class SettingsContainer extends Component {
     }
 
     onLogout = () => {
-        this.props.navigator.popToTop();
+        this.props.navigator.popToTop(); 
     }
 
     componentDidMount() {

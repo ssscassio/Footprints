@@ -8,10 +8,10 @@ import {
 } from "react-native";
 import TabViewFooter from "../../components/TabViewFooter";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import firebase from 'react-native-firebase';
 import Router from "../../router";
 import Images from "../../config/images";
 import User from '../../lib/user';
-import firebase from 'react-native-firebase';
 import Auth from '../../lib/Auth';
 
 class LoginScreen extends Component {
@@ -29,14 +29,6 @@ class LoginScreen extends Component {
         this.loginWithGoogle = this.loginWithGoogle.bind(this)
     }
 
-    popScreen() {
-        this.props.navigator.pop();
-    }
-
-    pushScreen(screen, props) {
-        this.props.navigator.push(Router.getRoute(screen, props));
-    }
-
     onLogin = (user) => {
         //console.log(val);
         //console.log(user);
@@ -45,11 +37,10 @@ class LoginScreen extends Component {
         console.log(user.email);
         console.log(user.uid);
 
-
         User.saveProfile(user.uid, user.displayName, user.email, user.photoURL)
             .then(() => {
                 this.setState({ loading: false });
-                this.pushScreen('home');
+                this.props.navigator.push(Router.getRoute('home'));
             })
             .catch((err) => {
                 this.setState({ loading: false });

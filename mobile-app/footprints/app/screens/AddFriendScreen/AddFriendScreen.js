@@ -5,7 +5,8 @@ import {
     StyleSheet,
     TextInput,
     FlatList,
-    Image
+    Image,
+    ActivityIndicator
 } from "react-native";
 import Router from "../../router";
 import Colors from '../../config/colors';
@@ -19,6 +20,7 @@ class AddFriendScreen extends Component {
         super(props);
         this.state = {
             text: '',
+            loading: false,
             users: []
         }
         this.myFriends = [];
@@ -42,14 +44,6 @@ class AddFriendScreen extends Component {
             });
     }
 
-    popScreen() {
-        this.props.navigator.pop();
-    }
-
-    pushScreen(screen, props) {
-        this.props.navigator.push(Router.getRoute(screen, props));
-    }
-
     _keyExtractor = (item, index) => {
         return item.key;        
     }
@@ -57,7 +51,7 @@ class AddFriendScreen extends Component {
     _onAdd = (friendId, friendsFriends) => {
         const myUID = firebase.auth().currentUser.uid;
         const db = firebase.firestore();
-
+        this.setState({ loading: true });
         this.myFriends = Object.assign(this.myFriends, {
             [friendId]: {
                 accepted: true,
@@ -80,6 +74,7 @@ class AddFriendScreen extends Component {
             friendRef.update({friends: friendsFriends})
         ]).then(() => {
             this._onChangeText(this.state.text);
+            this.setState({ loading: false });
         })
     }
 
@@ -108,10 +103,13 @@ class AddFriendScreen extends Component {
     }
 
     _onChangeText = (text) => {
+        const myUID = firebase.auth().currentUser.uid;
+        const db = firebase.firestore();
+
         this.setState({ text });
         if (text.length == 0) return;
 
-        firebase.firestore().collection('users')
+        db.collection('users')
             .orderBy('email')
             .startAt(text)
             .endAt(text+'\uf8ff')
@@ -127,7 +125,8 @@ class AddFriendScreen extends Component {
                         disabled: Object.keys(this.myFriends).includes(doc.id)
                     }
                 });
-                this.setState({ users });
+
+                this.setState({ users: users.filter(user => user.key !== myUID) });
             })
             .catch((err) => {
                 console.log(err);
@@ -150,6 +149,14 @@ class AddFriendScreen extends Component {
                         renderItem={this._renderItem}
                     />
                 </View>
+                { this.state.loading && 
+                    <View style={styles.loading}>
+                        <ActivityIndicator 
+                            color='blue'
+                            size='large'
+                        />
+                    </View>
+                }
             </View>
         );
     }
@@ -191,6 +198,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-start',
         paddingLeft: 10,
+    },
+    loading: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#F5FCFF88'
     }
 });
 

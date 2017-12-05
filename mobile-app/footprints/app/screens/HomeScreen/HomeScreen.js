@@ -24,9 +24,14 @@ class HomeScreen extends Component {
     render() {
         return (
             <TabViewFooter tabBarPosition={"bottom"}>
-                <UserContainer navigator={this.props.navigator} tabLabel="ios-people" />
-                <MapContainer tabLabel="ios-pin" />
-                <SettingsContainer navigator={this.props.navigator} tabLabel="ios-cog" />
+                <UserContainer 
+                    navigator={this.props.navigator} 
+                    tabLabel="ios-people" />
+                <MapContainer 
+                    tabLabel="ios-pin" />
+                <SettingsContainer 
+                    navigator={this.props.navigator} 
+                    tabLabel="ios-cog" />
             </TabViewFooter>
         );
     }
