@@ -149,21 +149,32 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-google-signin')
+    compile(project(':react-native-fbsdk')){
+      exclude(group: 'com.facebook.android', module: 'facebook-android-sdk')
+    }
+    compile "com.facebook.android:facebook-android-sdk:4.22.1"
+    compile(project(':react-native-firebase')) {
+        transitive = false
+    }
+    // Firebase dependencies
+    compile "com.google.android.gms:play-services-base:11.6.0"
+    compile "com.google.firebase:firebase-core:11.6.0"
+    compile "com.google.firebase:firebase-auth:11.6.0"
+    compile "com.google.firebase:firebase-firestore:11.6.0"
+
     compile project(':react-native-linear-gradient')
     compile 'com.android.support:multidex:1.0.1'
-    compile(project(":react-native-google-sign-in")) { // ADD this
-        exclude group: "com.google.android.gms"
-    } 
     compile(project(':react-native-maps')){
         exclude group: 'com.google.android.gms', module: 'play-services-base'
         exclude group: 'com.google.android.gms', module: 'play-services-maps'
     }
-    compile 'com.google.android.gms:play-services-base:10.2.1'
-    compile 'com.google.android.gms:play-services-maps:10.2.1'
+    compile 'com.google.android.gms:play-services-maps:11.6.0'
     compile project(':react-native-vector-icons')
-    compile project(':react-native-facebook-login')
     compile fileTree(dir: "libs", include: ["*.jar"])
-    compile "com.google.android.gms:play-services-auth:10.2.1" // Add this, not 9.8.0 (from instructions).
+    compile ("com.google.android.gms:play-services-auth:11.6.0") {
+        force = true;
+    } // Add this, not 9.8.0 (from instructions).
     compile "com.android.support:appcompat-v7:23.0.1"
     compile "com.facebook.react:react-native:+"  // From node_modules
 }

@@ -6,11 +6,11 @@ import MapContainer from "../../containers/MapContainer";
 import SettingsContainer from "../../containers/SettingsContainer";
 import UserContainer from "../../containers/UserContainer";
 
-
 class HomeScreen extends Component {
 
     constructor(props) {
         super(props);
+
     }
 
     popScreen() {
@@ -24,9 +24,14 @@ class HomeScreen extends Component {
     render() {
         return (
             <TabViewFooter tabBarPosition={"bottom"}>
-                <UserContainer tabLabel="ios-people" />
-                <MapContainer tabLabel="ios-pin" />
-                <SettingsContainer tabLabel="ios-cog" />
+                <UserContainer 
+                    navigator={this.props.navigator} 
+                    tabLabel="ios-people" />
+                <MapContainer 
+                    tabLabel="ios-pin" />
+                <SettingsContainer 
+                    navigator={this.props.navigator} 
+                    tabLabel="ios-cog" />
             </TabViewFooter>
         );
     }

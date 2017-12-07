@@ -9,16 +9,23 @@ import {
     TouchableOpacity
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
-import FireAuth from 'react-native-firebase-auth';
 import Images from '../../config/images';
 import Colors from '../../config/colors';
+import Router from '../../router';
+import Auth from '../../lib/Auth';
 
 class SettingsContainer extends Component {
     constructor(props) {
         super(props);
+        this.onLogout = this.onLogout.bind(this);
+    }
+
+    onLogout = () => {
+        this.props.navigator.popToTop(); 
     }
 
     componentDidMount() {
+        Auth.setOnLogout(this.onLogout);
     }
 
     render() {
@@ -36,7 +43,7 @@ class SettingsContainer extends Component {
                     </View>
                 </Image>
                 <View style={styles.items}>
-                    <TouchableOpacity style={styles.item} onPress={FireAuth.logout}>
+                    <TouchableOpacity style={styles.item} onPress={Auth.logout}>
                         <Image style={styles.itemIcon} source={Images.exitIcon} />
                         <Text style={styles.itemText}>{'Logout'.toUpperCase()}</Text>
                     </TouchableOpacity>

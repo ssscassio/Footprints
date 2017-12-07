@@ -8,9 +8,11 @@ import {
 } from "react-native";
 import TabViewFooter from "../../components/TabViewFooter";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import FireAuth from 'react-native-firebase-auth';
+import firebase from 'react-native-firebase';
 import Router from "../../router";
 import Images from "../../config/images";
+import User from '../../lib/user';
+import Auth from '../../lib/Auth';
 
 class LoginScreen extends Component {
 
@@ -19,26 +21,15 @@ class LoginScreen extends Component {
         this.state = {
             loading: false
         };
-        FireAuth.init({
-            clientID: '855974838992-5m2b3iebidgrg7lnc7pfj3ourvuddtpj.apps.googleusercontent.com',
-            scopes: ['openid', 'email', 'profile'],
-            shouldFetchBasicProfile: true
-        });
+
+        Auth.setup(firebase);
+        
         this.onLogin = this.onLogin.bind(this)
-        this.onLogout = this.onLogout.bind(this)
         this.loginWithFacebook = this.loginWithFacebook.bind(this)
         this.loginWithGoogle = this.loginWithGoogle.bind(this)
     }
 
-    popScreen() {
-        this.props.navigator.pop();
-    }
-
-    pushScreen(screen, props) {
-        this.props.navigator.push(Router.getRoute(screen, props));
-    }
-
-    onLogin = (user, val) => {
+    onLogin = (user) => {
         //console.log(val);
         //console.log(user);
         console.log(user.photoURL);
@@ -46,21 +37,15 @@ class LoginScreen extends Component {
         console.log(user.email);
         console.log(user.uid);
 
-        this.setState({ loading: false });
-        this.pushScreen('home');
-    }
-    
-    onUserChange() {
-        console.log('user change');
-    }
-
-    onLogout = () => {
-        console.log('did log out');
-        this.props.navigator.popToTop();
-    }
-
-    onEmailVerified() {
-        console.log('email verified');
+        User.saveProfile(user.uid, user.displayName, user.email, user.photoURL)
+            .then(() => {
+                this.setState({ loading: false });
+                this.props.navigator.push(Router.getRoute('home'));
+            })
+            .catch((err) => {
+                this.setState({ loading: false });
+                console.log(err);
+            });
     }
 
     onError(err) {
@@ -69,7 +54,9 @@ class LoginScreen extends Component {
     }
 
     componentDidMount() {
-        FireAuth.setup(this.onLogin, this.onUserChange, this.onLogout, this.onEmailVerified, this.onError);
+        Auth.setOnLogin(this.onLogin);
+        Auth.setOnError(this.onError);
+
         this.setState({ loading: true });
         setInterval(() => {
             this.setState({ loading: false });
@@ -78,18 +65,17 @@ class LoginScreen extends Component {
 
     loginWithFacebook() {
         this.setState({ loading: true });
-        FireAuth.facebookLogin(['email', 'user_friends']);
+        Auth.facebookLogin();
     }
     
     loginWithGoogle() {
         this.setState({ loading: true });
-        FireAuth.googleLogin();
+        Auth.googleLogin();
     }
 
     render() {
         return (
             <View style={styles.container}>
-            
                 <View style={styles.logo}>
                     <Image
                         style={{width: 300, height: 150}}
@@ -127,7 +113,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#f1f1f1"
+        backgroundColor: "white"
     },
     logo: {
         flex: 2,
