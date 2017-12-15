@@ -5,12 +5,13 @@ import {
     StyleSheet,
     Dimensions,
     InteractionManager,
-    Image
+    Image,
 } from "react-native";
 import MapView from "react-native-maps";
 import Images from "../../config/images";
 import Colors from "../../config/colors";
 import firebase from 'react-native-firebase';
+import LocationServicesDialogBox from "react-native-android-location-services-dialog-box";
 
 const { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -58,11 +59,36 @@ class MapContainer extends Component {
     }
 
     componentDidMount() {
+        LocationServicesDialogBox.checkLocationServicesIsEnabled({
+            message: "<h2>Use Location ?</h2>This app wants to change your device settings:<br/><br/>Use GPS, Wi-Fi, and cell network for location<br/><br/><a href='#'>Learn more</a>",
+            ok: "YES",
+            cancel: "NO",
+            enableHighAccuracy: true, // true => GPS AND NETWORK PROVIDER, false => ONLY GPS PROVIDER
+            showDialog: true, // false => Opens the Location access page directly
+            openLocationServices: true, // false => Directly catch method is called if location services are turned off
+            preventOutSideTouch: true, //true => To prevent the location services window from closing when it is clicked outside
+            preventBackClick: true //true => To prevent the location services popup from closing when it is clicked back button
+        }).then((success) => {
+            console.log(success); // success => {alreadyEnabled: false, enabled: true, status: "enabled"}
+            navigator.geolocation.getCurrentPosition(
+                ({ coords }) => this._setCoords(coords),
+                error => console.log(error),
+                geolocationOptionsHigh
+            );
+        }).catch((error) => {
+            console.log(error.message); // error.message => "disabled"
+        });
+    }
+
+    componentDidUpdate() {
         navigator.geolocation.getCurrentPosition(
-            ({ coords }) => this._setCoords(coords),
+            ({ coords }) => {
+                if (coords != this.state.userLocation)
+                    this._setCoords(coords);
+            },
             error => console.log(error),
             geolocationOptionsHigh
-        );
+        )
     }
 
     _setCoords(coords) {

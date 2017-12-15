@@ -11,6 +11,7 @@ import {
 import Images from '../../config/images';
 import Colors from '../../config/colors';
 import Router from '../../router';
+import User from '../../lib/user';
 import firebase from 'react-native-firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -41,106 +42,67 @@ class FriendsList extends Component {
 
     _updateFriends = () => {
         const myUID = firebase.auth().currentUser.uid;
-        const db = firebase.firestore();
 
-        let data;
+        let confirmedFriends, pendingFriends;
 
-        db.collection('users').doc(myUID).get()
-            .then(doc => {
-                if (doc.exists) {
-                    data = doc.data();
+        Promise.all([
+            User.getConfirmedFriends(myUID),
+            User.getPendingFriends(myUID)
+        ])
+        .then(values => {
+            [confirmedFriends, pendingFriends] = values;
 
-                    if (data.friends == null) return;
+            return Promise.all([
+                Promise.all(Object.keys(confirmedFriends).map(fid => User.getProfile(fid))),
+                Promise.all(Object.keys(pendingFriends).map(fid => User.getProfile(fid)))
+            ]);
+        })
+        .then(values => {
+            confirmedFriends = values[0].map(friend => Object.assign(friend, confirmedFriends[friend.id]));
+            pendingFriends = values[1].map(friend => Object.assign(friend, pendingFriends[friend.id]));
 
-                    const pendingFriends = Object.keys(data.friends).filter(friendId => data.friends[friendId].pending);
-                    const confirmedFriends = Object.keys(data.friends).filter(friendId => !data.friends[friendId].pending);
+            confirmedFriends.sort((a,b) => a.name < b.name);
+            pendingFriends.sort((a,b) => a.name < b.name);
 
-                    return Promise.all([
-                        Promise.all(pendingFriends.map(uid => db.collection('users').doc(uid).get())),
-                        Promise.all(confirmedFriends.map(uid => db.collection('users').doc(uid).get())),
-                    ]);
-                }
-                return Promise.reject('Your user doesn\'t exist');
-            })
-            .then(values => {
-                let [pendingFriends,confirmedFriends] = values;
-
-                pendingFriends = pendingFriends.map(doc => doc.exists && Object.assign(doc.data(),{
-                    key:doc.id,
-                    pending:true,
-                    accepted: data.friends[doc.id].accepted
-                })).sort((a,b) => a.name < b.name);
-                confirmedFriends = confirmedFriends.map(doc => doc.exists && Object.assign(doc.data(),{
-                    key:doc.id,
-                    pending:false,
-                    accepted: true
-                })).sort((a,b) => a.name < b.name);
-
-                if (JSON.stringify(this.state.myFriends) !== JSON.stringify(confirmedFriends) || 
-                    JSON.stringify(this.state.myPendingFriends) !== JSON.stringify(pendingFriends) ||
-                    this.state.loadingList) {
-                    this.setState({ 
-                        myFriends: confirmedFriends, 
-                        myPendingFriends: pendingFriends,
-                        loadingList: false
-                    });
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            });
+            if (JSON.stringify(this.state.myFriends) !== JSON.stringify(confirmedFriends) || 
+                JSON.stringify(this.state.myPendingFriends) !== JSON.stringify(pendingFriends) ||
+                this.state.loadingList) {
+                this.setState({ 
+                    myFriends: confirmedFriends, 
+                    myPendingFriends: pendingFriends,
+                    loadingList: false
+                });
+            } 
+        })
+        .catch(err => console.log(err));
     }
 
-    _keyExtractor = (item, index) => item.key || index;
+    _keyExtractor = (item, index) => item.id || index;
 
     _confirmRequest = (friendId) => {
         this.setState({ loading: true })
         const myUID = firebase.auth().currentUser.uid;
-        const db = firebase.firestore(); 
 
-        let myData, friendData;
+        User.confirmFriend(myUID, friendId)
+            .then(values => {
+                let newMyFriends = this.state.myFriends;
+                let newMyPendingFriends = this.state.myPendingFriends.filter(friend => friend.id !== friendId);
 
-        Promise.all([
-            db.collection('users').doc(myUID).get(),
-            db.collection('users').doc(friendId).get()            
-        ]).then(docs => {
-            const [myDoc, friendDoc] = docs;
+                let confirmedFriend = this.state.myPendingFriends.find(friend => friend.id === friendId);
+                confirmedFriend = Object.assign(confirmedFriend, { accepted: true, pending: false });
 
-            if (myDoc.exists && friendDoc.exists) {
-                myData = myDoc.data();
-                friendData = friendDoc.data();
+                newMyFriends.push(confirmedFriend);
 
-                myData.friends[friendId] = {
-                    accepted: true,
-                    pending: false
-                }
-                friendData.friends[myUID] = {
-                    accepted: true,
-                    pending: false
-                }
+                newMyFriends.sort((a,b) => a.name < b.name);
+                newMyPendingFriends.sort((a,b) => a.name < b.name);
 
-                return Promise.all([
-                  db.collection('users').doc(myUID).update({ friends: myData.friends }), 
-                  db.collection('users').doc(friendId).update({ friends: friendData.friends })  
-                ]);
-            }
-
-            return Promise.reject("Your user or friend doesn't exist.");
-        })
-        .then(() => {
-            const newMyFriends = this.state.myFriends;
-            newMyFriends.push(Object.assign(friendData, {key:friendId,pending:false}));;
-            newMyFriends.sort((a,b) => a.name < b.name);
-            const newMyPendingFriends = this.state.myPendingFriends.filter(friend => friend.key !== friendId);
-            newMyPendingFriends.sort((a,b) => a.name < b.name);
-
-            this.setState({ 
-                myFriends: newMyFriends,
-                myPendingFriends: newMyPendingFriends,
-                loading: false 
-            });
-        })
-        .catch(err => console.log(err));
+                this.setState({ 
+                    myFriends: newMyFriends,
+                    myPendingFriends: newMyPendingFriends,
+                    loading: false 
+                });
+            })
+            .catch(err => console.log(err));
     }
 
     _renderItem = ({item}) => {
@@ -160,7 +122,7 @@ class FriendsList extends Component {
                                     color={"green"}
                                     backgroundColor={'transparent'}
                                     size={20}
-                                    onPress={() => this._confirmRequest(item.key)}
+                                    onPress={() => this._confirmRequest(item.id)}
                                 />
                         }
                         { this.state.loading && 

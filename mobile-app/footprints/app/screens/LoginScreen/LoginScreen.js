@@ -30,21 +30,24 @@ class LoginScreen extends Component {
     }
 
     onLogin = (user) => {
-        //console.log(val);
-        //console.log(user);
         console.log(user.photoURL);
         console.log(user.displayName);
         console.log(user.email);
         console.log(user.uid);
 
-        User.saveProfile(user.uid, user.displayName, user.email, user.photoURL)
+        User.getProfile(user.uid)
             .then(() => {
                 this.setState({ loading: false });
                 this.props.navigator.push(Router.getRoute('home'));
             })
-            .catch((err) => {
-                this.setState({ loading: false });
-                console.log(err);
+            .catch(err => {
+                // create new user if it doesn't exist
+                User.newProfile(user.uid, user.displayName, user.email, user.photoURL)
+                    .then(() => {
+                        this.setState({ loading: false });
+                        this.props.navigator.push(Router.getRoute('home'));
+                    })
+                    .catch(err => console.log(err));
             });
     }
 
