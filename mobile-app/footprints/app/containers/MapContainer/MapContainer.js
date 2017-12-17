@@ -10,6 +10,7 @@ import {
 import MapView from "react-native-maps";
 import Images from "../../config/images";
 import Colors from "../../config/colors";
+import User from '../../lib/user';
 import firebase from 'react-native-firebase';
 import LocationServicesDialogBox from "react-native-android-location-services-dialog-box";
 
@@ -36,7 +37,8 @@ class MapContainer extends Component {
             userLocation: {
                 latitude: 37.78825,
                 longitude: -122.4324
-            }
+            },
+            friendsLocations: {}
         };
         this.animateTo = this.animateTo.bind(this);
     }
@@ -59,6 +61,7 @@ class MapContainer extends Component {
     }
 
     componentDidMount() {
+        console.log('MapContainer did mount');
         LocationServicesDialogBox.checkLocationServicesIsEnabled({
             message: "<h2>Use Location ?</h2>This app wants to change your device settings:<br/><br/>Use GPS, Wi-Fi, and cell network for location<br/><br/><a href='#'>Learn more</a>",
             ok: "YES",
@@ -71,7 +74,56 @@ class MapContainer extends Component {
         }).then((success) => {
             console.log(success); // success => {alreadyEnabled: false, enabled: true, status: "enabled"}
             navigator.geolocation.getCurrentPosition(
-                ({ coords }) => this._setCoords(coords),
+                (position) => {
+                    this._setCoords(position.coords);
+                    if (firebase.auth().currentUser != null) {
+                        User.updateStatus(firebase.auth().currentUser.uid, { location: position });
+
+                        User.getConfirmedFriends(firebase.auth().currentUser.uid)
+                        .then(friends => {
+                            return Promise.all(
+                                Object.keys(friends).map(fid => User.getProfile(fid))
+                            )
+                            .then(values => {
+                                const res = values.reduce((acc, val) => {
+                                    acc[val.id] = val.profile_picture;
+                                    return acc;
+                                }, {});
+                                return Promise.resolve(res);
+                            });
+                        })
+                        .then(friends => {
+                            const ids = Object.keys(friends);
+                            ids.forEach(id => {
+                                User.offStatus(id);
+                                User.onStatus(id, (err, data) => {
+                                    if (err) {
+                                        console.log(err);
+                                        return;
+                                    }
+                                    const copy = this.state.friendsLocations;
+                                    const coords = {
+                                        photoURL: friends[id],
+                                        latitude: data.location.coords.latitude,
+                                        longitude: data.location.coords.longitude
+                                    };
+
+                                    if (this.state.friendsLocations[id] == null) {
+                                        copy[id] = coords;
+                                        this.setState({ friendsLocations: copy });
+                                        return;
+                                    }
+                                    if (coords.latitude !== this.state.friendsLocations[id].latitude) {
+                                        copy[id] = coords;
+                                        this.setState({ friendsLocations: copy });
+                                        return;
+                                    }
+                                });
+                            });
+                        })
+                        .catch(err => console.log(err));    
+                    }
+                },
                 error => console.log(error),
                 geolocationOptionsHigh
             );
@@ -81,14 +133,24 @@ class MapContainer extends Component {
     }
 
     componentDidUpdate() {
+        console.log('MapContainer did update');
         navigator.geolocation.getCurrentPosition(
-            ({ coords }) => {
-                if (coords != this.state.userLocation)
-                    this._setCoords(coords);
+            (position) => {
+                if (position.coords.latitude != this.state.userLocation.latitude)
+                    this._setCoords(position.coords);
+                if (firebase.auth().currentUser != null)
+                    User.updateStatus(firebase.auth().currentUser.uid, { location: position });
             },
             error => console.log(error),
             geolocationOptionsHigh
-        )
+        );
+    }
+
+    componentWillUnmount() {
+        console.log('MapContainer will unmount');
+        Object.keys(this.state.friendsLocations).forEach(fid => {
+            User.offStatus(fid);
+        }); 
     }
 
     _setCoords(coords) {
@@ -117,18 +179,49 @@ class MapContainer extends Component {
                 }}
                 anchor={{ x: 0.5, y: 0.5 }}
             >
-                <Image
-                    source={{uri: firebase.auth().currentUser.photoURL}}
-                    style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 20,
-                        borderWidth: 2,
-                        borderColor: Colors.primaryColor
-                    }}
-                />
+                { firebase.auth().currentUser != null &&
+                    <Image
+                        source={{uri: firebase.auth().currentUser.photoURL}}
+                        style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 20,
+                            borderWidth: 2,
+                            borderColor: Colors.primaryColor
+                        }}
+                    />
+                }
             </MapView.Marker>
         );
+    }
+
+    _renderFriendsMarkers() {
+        return Object.keys(this.state.friendsLocations).map((fid, idx) => {
+            const friendData = this.state.friendsLocations[fid];
+            return (
+                <MapView.Marker
+                    key={`friend-${idx}`}
+                    coordinate={{
+                        latitude: parseFloat(friendData.latitude),
+                        longitude: parseFloat(friendData.longitude)
+                    }}
+                    anchor={{ x: 0.5, y: 0.5 }}
+                >
+                    { friendData.photoURL != null &&
+                        <Image
+                            source={{uri: friendData.photoURL}}
+                            style={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: 18,
+                                borderWidth: 2,
+                                borderColor: Colors.accentColor
+                            }}
+                        />
+                    }
+                </MapView.Marker>
+            );
+        });
     }
     render() {
         let { userLocation } = this.state;
@@ -141,6 +234,7 @@ class MapContainer extends Component {
                     initialRegion={this.initialRegion}
                 >
                     {this._renderUserMarker()}
+                    {this._renderFriendsMarkers()}
                 </MapView>
             </View>
         );

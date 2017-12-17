@@ -1,6 +1,8 @@
 import firebase from 'react-native-firebase';
 
 const db = firebase.firestore();
+const rtdb = firebase.database();
+
 const FieldValue = firebase.FieldValue;
 
 const user = {
@@ -126,7 +128,29 @@ const user = {
             .catch(err => Promise.reject(err)); 
     },
 
+    updateStatus(uid, params) {
+        return rtdb.ref(`users/${uid}`).update(params);
+    },
 
+    getStatus(fid) {
+        return rtdb.ref(`users/${fid}`).once('value').then(snapshot => {
+            const data = snapshot.val();
+            return Promise.resolve(data);
+        }).catch(err => Promise.reject(err));
+    },
+
+    onStatus(fid, cb) {
+        return rtdb.ref(`users/${fid}`).on('value', 
+        snapshot => {
+            const data = snapshot.val();
+            return cb(null, data);
+        },
+        err => cb(err)); 
+    },
+
+    offStatus(fid) {
+        return rtdb.ref(`users/${fid}`).off('value');
+    }
 }
 
 export default user;

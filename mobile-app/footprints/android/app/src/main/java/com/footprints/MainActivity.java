@@ -1,6 +1,7 @@
 package com.footprints;
 
 import com.facebook.react.ReactActivity;
+import com.robinpowered.react.battery.DeviceBatteryPackage;
 import android.content.Intent;
 
 public class MainActivity extends ReactActivity {

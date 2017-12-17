@@ -3,6 +3,7 @@ package com.footprints;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.robinpowered.react.battery.DeviceBatteryPackage;
 import com.showlocationservicesdialogbox.LocationServicesDialogBoxPackage;
 import com.pilloxa.backgroundjob.BackgroundJobPackage;
 import co.apptailor.googlesignin.RNGoogleSigninPackage;
@@ -43,6 +44,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new DeviceBatteryPackage(),
             new LocationServicesDialogBoxPackage(),
             new BackgroundJobPackage(),
             new RNGoogleSigninPackage(),

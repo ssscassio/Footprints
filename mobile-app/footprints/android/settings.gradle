@@ -1,4 +1,6 @@
 rootProject.name = 'footprints'
+include ':react-native-device-battery'
+project(':react-native-device-battery').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-device-battery/android')
 include ':react-native-android-location-services-dialog-box'
 project(':react-native-android-location-services-dialog-box').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-android-location-services-dialog-box/android')
 include ':react-native-background-job'

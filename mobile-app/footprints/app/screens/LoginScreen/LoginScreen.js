@@ -4,7 +4,8 @@ import {
     Text, 
     StyleSheet, 
     Image, 
-    ActivityIndicator 
+    ActivityIndicator,
+    AsyncStorage
 } from "react-native";
 import TabViewFooter from "../../components/TabViewFooter";
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -37,15 +38,19 @@ class LoginScreen extends Component {
 
         User.getProfile(user.uid)
             .then(() => {
-                this.setState({ loading: false });
-                this.props.navigator.push(Router.getRoute('home'));
+                AsyncStorage.setItem('UID', user.uid).then(() => {
+                    this.setState({ loading: false });
+                    this.props.navigator.push(Router.getRoute('home'));
+                });
             })
             .catch(err => {
                 // create new user if it doesn't exist
                 User.newProfile(user.uid, user.displayName, user.email, user.photoURL)
                     .then(() => {
-                        this.setState({ loading: false });
-                        this.props.navigator.push(Router.getRoute('home'));
+                        AsyncStorage.setItem('UID', user.uid).then(() => {
+                            this.setState({ loading: false });
+                            this.props.navigator.push(Router.getRoute('home'));
+                        });
                     })
                     .catch(err => console.log(err));
             });
