@@ -25,6 +25,8 @@ class GroupsList extends Component {
             loadingList: true
         }
 
+        this.user = JSON.parse(props.user); 
+
     }
 
     componentDidMount() {
@@ -38,7 +40,7 @@ class GroupsList extends Component {
     }
 
     _updateGroups = () => {
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
 
         User.getGroups(myUID)
         .then(groups => {

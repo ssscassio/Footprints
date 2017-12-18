@@ -24,10 +24,12 @@ class CreateGroupScreen extends Component {
             friends: [],
             chosenFriends: []
         }
+
+        this.user = JSON.parse(props.user);
     }
 
     componentDidMount() {
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
 
         User.getConfirmedFriends(myUID)
             .then(friends => {
@@ -95,7 +97,7 @@ class CreateGroupScreen extends Component {
     _renderChosenItem = ({ item }) => {
         return (
             <TouchableOpacity 
-                style={styles.item} 
+                style={styles.chosenItem} 
                 onPress={() => this._removeFriend(item)}
                 >
                 <View>
@@ -103,14 +105,22 @@ class CreateGroupScreen extends Component {
                     <Icon 
                         style={{
                             position: 'absolute',
-                            right: -11,
-                            bottom: 24
+                            right: 0,
+                            top: 30
                         }}
                         name="times-circle" 
                         color={'gray'}
                         size={25}
                         />
-                    <Text style={{fontSize: 14, padding: 6}}>{item.name.split(' ')[0]}</Text>
+                    <Text 
+                        style={{
+                            fontSize: 14, 
+                            padding: 4
+                            }}
+                        numberOfLines={2}
+                        >
+                        {item.name.split(' ')[0]}
+                    </Text>
                 </View>
             </TouchableOpacity> 
         );
@@ -118,7 +128,7 @@ class CreateGroupScreen extends Component {
 
     _goToGroupNameScreen = () => {
         if (this.state.chosenFriends.length > 0)
-            this.props.navigator.push(Router.getRoute('groupName', { friends: this.state.chosenFriends }));
+            this.props.navigator.push(Router.getRoute('groupName', { user: this.props.user, friends: this.state.chosenFriends }));
     }
 
     render() {
@@ -127,6 +137,7 @@ class CreateGroupScreen extends Component {
                 <Text style={styles.header}>Novo Grupo</Text> 
                 <View style={styles.chosenPeople}>
                     <FlatList 
+                        horizontal={true}
                         data={this.state.chosenFriends}
                         extraData={this.state}
                         keyExtractor={this._keyExtractor}
@@ -202,6 +213,12 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'stretch',
         padding: 10,
+    },
+    chosenItem: {
+        width: 80,
+        height: 100,
+        padding: 10,
+        margin: 5
     },
     friendTexts: {
         flex: 1,

@@ -8,8 +8,6 @@ import {
     Image,
     TouchableOpacity,
     TouchableHighlight,
-    BackHandler,
-    BackAndroid
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import Images from '../../config/images';
@@ -27,6 +25,8 @@ class UserContainer extends Component {
         this.state = {
             friends: true
         }
+
+        this.user = JSON.parse(props.user);
 
         this._goToAddScreen = this._goToAddScreen.bind(this);
     }
@@ -48,9 +48,9 @@ class UserContainer extends Component {
 
     _goToAddScreen (isFriends) {
         if (isFriends)
-            this.props.navigator.push(Router.getRoute('addFriend'));
+            this.props.navigator.push(Router.getRoute('addFriend', { user: this.props.user }));
         else 
-            this.props.navigator.push(Router.getRoute('createGroup'));
+            this.props.navigator.push(Router.getRoute('createGroup', { user: this.props.user }));
     }
 
     render() {
@@ -91,8 +91,8 @@ class UserContainer extends Component {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.groupList}>
-                        { !this.state.friends && <GroupsList /> }
-                        { this.state.friends && <FriendsList /> }
+                        { !this.state.friends && <GroupsList user={this.props.user} /> }
+                        { this.state.friends && <FriendsList user={this.props.user} /> }
                         <View
                             elevation={3}
                             style={{

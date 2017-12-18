@@ -25,10 +25,12 @@ class AddFriendScreen extends Component {
             users: []
         }
         this.myFriends = {};
+
+        this.user = JSON.parse(this.props.user);
     }
 
     componentDidMount() {
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
         
         User.getProfile(myUID)
             .then(data => {
@@ -43,7 +45,7 @@ class AddFriendScreen extends Component {
     }
 
     _onAdd = (friendId) => {
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
         const db = firebase.firestore();
         this.setState({ loading: true });
         this.myFriends = Object.assign(this.myFriends, {
@@ -85,7 +87,7 @@ class AddFriendScreen extends Component {
     }
 
     _onChangeText = (text) => {
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
         const db = firebase.firestore();
 
         this.setState({ text });

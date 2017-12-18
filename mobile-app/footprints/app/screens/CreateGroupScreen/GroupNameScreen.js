@@ -25,6 +25,8 @@ class GroupNameScreen extends Component {
         this.state = {
             name: '',
         };
+
+        this.user = JSON.parse(this.props.user);
     }
 
     componentDidMount() {
@@ -45,7 +47,7 @@ class GroupNameScreen extends Component {
 
     _createGroup = () => {
         if (this.state.name === '') return;
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
 
         const participants = this.props.friends.reduce((acc,friend) => {
             acc[friend.id] = true;
@@ -93,6 +95,8 @@ class GroupNameScreen extends Component {
                 <View style={styles.participants}>
                     <Text>{`Participantes: ${this.props.friends.length}`}</Text>
                     <FlatList 
+                        horizontal={false}
+                        numColumns={3}
                         data={this.props.friends}
                         keyExtractor={this._keyExtractor}
                         renderItem={this._renderItem}
@@ -151,10 +155,10 @@ const styles = StyleSheet.create({
         borderRadius: 25
     },
     item: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'stretch',
+        width: 80,
+        height: 100,
         padding: 10,
+        marginTop: 5,
     },
 });
 

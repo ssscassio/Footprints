@@ -26,6 +26,8 @@ class FriendsList extends Component {
             loadingList: false,
         }
 
+        this.user = JSON.parse(props.user);
+
         this._updateFriends = this._updateFriends.bind(this);
     }
 
@@ -41,7 +43,7 @@ class FriendsList extends Component {
     }
 
     _updateFriends = () => {
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
 
         let confirmedFriends, pendingFriends;
 
@@ -81,7 +83,7 @@ class FriendsList extends Component {
 
     _confirmRequest = (friendId) => {
         this.setState({ loading: true })
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
 
         User.confirmFriend(myUID, friendId)
             .then(values => {

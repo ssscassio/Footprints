@@ -6,6 +6,7 @@ import {
     Dimensions,
     InteractionManager,
     Image,
+    AsyncStorage
 } from "react-native";
 import MapView from "react-native-maps";
 import Images from "../../config/images";
@@ -21,10 +22,6 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 const KiLOMETERS_ON_A_DEGREE = 1 / 111;
 const markWidth = 372;
 const markHeight = 594;
-const geolocationOptions = {
-    enableHighAccuracy: false,
-    timeout: 20000
-};
 const geolocationOptionsHigh = {
     enableHighAccuracy: true,
     timeout: 20000,
@@ -34,33 +31,25 @@ const geolocationOptionsHigh = {
 class MapContainer extends Component {
     constructor(props) {
         super(props);
+
+        const lastCoords = JSON.parse(props.lastCoords);
+
         this.state = {
             userLocation: {
-                latitude: 37.78825,
-                longitude: -122.4324
+                latitude: lastCoords ? lastCoords.latitude : 0,
+                longitude: lastCoords ? lastCoords.longitude : 0
             },
             friendsLocations: {}
         };
-        this.animateTo = this.animateTo.bind(this);
-    }
 
-    get initialRegion() {
-        if (this.state.hasLocation) {
-            const { userLocation } = this.state;
-            return {
-                latitude: userLocation.latitude || null,
-                longitude: userLocation.longitude || null,
-                latitudeDelta: LATITUDE_DELTA,
-                longitudeDelta: LONGITUDE_DELTA
-            };
+        this.initialRegion = {
+            latitude: this.state.userLocation.latitude,
+            longitude: this.state.userLocation.longitude,
+            latitudeDelta: LATITUDE_DELTA,
+            longitudeDelta: LONGITUDE_DELTA
         }
-        return null;
-    }
 
-    animateTo(coords) {
-        if (this._map != null) {
-            this._map.animateToRegion(coords);
-        }
+        this.user = JSON.parse(props.user);
     }
 
     componentDidMount() {
@@ -76,13 +65,13 @@ class MapContainer extends Component {
             preventBackClick: true //true => To prevent the location services popup from closing when it is clicked back button
         }).then((success) => {
             console.log(success); // success => {alreadyEnabled: false, enabled: true, status: "enabled"}
-            const myUID = firebase.auth().currentUser.uid;
+            const myUID = this.user.uid;
             this._watchID = navigator.geolocation.watchPosition(
                 (position) => {
                     this._setCoords(position.coords);
-                    if (firebase.auth().currentUser != null) {
-                        User.updateStatus(firebase.auth().currentUser.uid, { location: position });
-                    }
+                    User.updateStatus(myUID, { location: position });
+
+                    AsyncStorage.setItem('userLastLocation', JSON.stringify(position.coords));
                 },
                 error => console.log(error),
                 geolocationOptionsHigh
@@ -151,42 +140,22 @@ class MapContainer extends Component {
     _setCoords(coords) {
         this.setState(
             {
-                userLocation: coords,
+                userLocation: {
+                    latitude: coords.latitude,
+                    longitude: coords.longitude
+                },
                 hasLocation: true
+            },
+            () => {
+                if (this._map != null) {
+                    this._map.animateToRegion(this.initialRegion);
+                }
             }
         );
     }
 
-    _renderUserMarker() {
-        let { latitude, longitude } = this.state.userLocation;
-
-        return (
-            <MapView.Marker
-                key={"user"}
-                coordinate={{
-                    latitude: parseFloat(latitude),
-                    longitude: parseFloat(longitude)
-                }}
-                anchor={{ x: 0.5, y: 0.5 }}
-            >
-                { firebase.auth().currentUser != null &&
-                    <Image
-                        source={{uri: firebase.auth().currentUser.photoURL}}
-                        style={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 20,
-                            borderWidth: 2,
-                            borderColor: Colors.primaryColor
-                        }}
-                    />
-                }
-            </MapView.Marker>
-        );
-    }
-
-    _renderFriendsMarkers() {
-        return Object.keys(this.state.friendsLocations).map((fid, idx) => {
+    _renderUsers() {
+        const users = Object.keys(this.state.friendsLocations).map((fid, idx) => {
             const friendData = this.state.friendsLocations[fid];
             return (
                 <MapView.Marker
@@ -197,34 +166,54 @@ class MapContainer extends Component {
                     }}
                     anchor={{ x: 0.5, y: 0.5 }}
                 >
-                    { friendData.photoURL != null &&
-                        <Image
-                            source={{uri: friendData.photoURL}}
-                            style={{
-                                width: 36,
-                                height: 36,
-                                borderRadius: 18,
-                                borderWidth: 2,
-                                borderColor: Colors.accentColor
-                            }}
-                        />
-                    }
-                </MapView.Marker>
+                    <Image
+                        source={{uri: friendData.photoURL}}
+                        style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 18,
+                            borderWidth: 2,
+                            borderColor: Colors.accentColor
+                        }}
+                    />
+            </MapView.Marker>
             );
         });
-    }
-    render() {
-        let { userLocation } = this.state;
 
+        const myPhotoUrl = this.user.photoURL;
+        const myCoords = this.state.userLocation;
+
+        // my user
+        users.unshift(
+            <MapView.Marker
+                key={`user-${new Date().getTime()}`}
+                coordinate={myCoords}
+                anchor={{ x: 0.6, y: 0.6 }}
+                >
+                <Image
+                    source={{uri: myPhotoUrl}}
+                    style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        borderWidth: 2,
+                        borderColor: Colors.primaryColor
+                    }}
+                />
+            </MapView.Marker> 
+        );
+
+        return users;
+    }
+
+    render() {
         return (
             <View style={styles.container}>
                 <MapView
                     style={styles.map}
-                    ref={c => (this._map = c)}
                     initialRegion={this.initialRegion}
                 >
-                    {this._renderUserMarker()}
-                    {this._renderFriendsMarkers()}
+                    {this._renderUsers()}
                 </MapView>
             </View>
         );

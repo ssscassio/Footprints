@@ -6,7 +6,8 @@ import {
     Dimensions,
     InteractionManager,
     Image,
-    TouchableOpacity
+    TouchableOpacity,
+    AsyncStorage
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import Images from '../../config/images';
@@ -21,7 +22,12 @@ class SettingsContainer extends Component {
     }
 
     onLogout = () => {
-        this.props.navigator.popToTop(); 
+        console.log('on logout');
+        AsyncStorage.multiRemove(['userData', 'userToken'])
+        .then(() => {
+            this.props.navigator.replace(Router.getRoute('login')); 
+        })
+        .catch(err => console.log(err));
     }
 
     componentDidMount() {

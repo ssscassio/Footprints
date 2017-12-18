@@ -5,7 +5,8 @@ import {
     StyleSheet, 
     Image, 
     ActivityIndicator,
-    AsyncStorage
+    AsyncStorage,
+    InteractionManager
 } from "react-native";
 import TabViewFooter from "../../components/TabViewFooter";
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -23,8 +24,6 @@ class LoginScreen extends Component {
             loading: false
         };
 
-        Auth.setup(firebase);
-
         this.onLogin = this.onLogin.bind(this)
         this.loginWithFacebook = this.loginWithFacebook.bind(this)
         this.loginWithGoogle = this.loginWithGoogle.bind(this)
@@ -38,21 +37,18 @@ class LoginScreen extends Component {
         
         User.getProfile(user.uid)
             .then(() => {
-                AsyncStorage.setItem('UID', user.uid).then(() => {
-                    this.setState({ loading: false });
-                    this.props.navigator.push(Router.getRoute('home'));
-                });
+                this.props.navigator.replace(Router.getRoute('home', { user: JSON.stringify(user) }));
             })
             .catch(err => {
                 // create new user if it doesn't exist
                 User.newProfile(user.uid, user.displayName, user.email, user.photoURL)
                     .then(() => {
-                        AsyncStorage.setItem('UID', user.uid).then(() => {
-                            this.setState({ loading: false });
-                            this.props.navigator.push(Router.getRoute('home'));
-                        });
+                        this.props.navigator.replace(Router.getRoute('home', { user: JSON.stringify(user) }));
                     })
-                    .catch(err => console.log(err));
+                    .catch(err => {
+                        this.setState({ loading: false });
+                        console.log(err)
+                    });
             });
     }
 
@@ -64,11 +60,6 @@ class LoginScreen extends Component {
     componentDidMount() {
         Auth.setOnLogin(this.onLogin);
         Auth.setOnError(this.onError);
-
-        this.setState({ loading: true });
-        setInterval(() => {
-            this.setState({ loading: false });
-        }, 5000);
     }
 
     componentWillUnmount() {
