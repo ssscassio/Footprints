@@ -24,7 +24,7 @@ class LoginScreen extends Component {
         };
 
         Auth.setup(firebase);
-        
+
         this.onLogin = this.onLogin.bind(this)
         this.loginWithFacebook = this.loginWithFacebook.bind(this)
         this.loginWithGoogle = this.loginWithGoogle.bind(this)
@@ -35,7 +35,7 @@ class LoginScreen extends Component {
         console.log(user.displayName);
         console.log(user.email);
         console.log(user.uid);
-
+        
         User.getProfile(user.uid)
             .then(() => {
                 AsyncStorage.setItem('UID', user.uid).then(() => {
@@ -69,6 +69,9 @@ class LoginScreen extends Component {
         setInterval(() => {
             this.setState({ loading: false });
         }, 5000);
+    }
+
+    componentWillUnmount() {
     }
 
     loginWithFacebook() {

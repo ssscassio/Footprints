@@ -88,7 +88,7 @@ const user = {
                     const data = doc.data();
 
                     if (data.friends == null)
-                        return this.updateProfile(uid, { friends: [] })
+                        return this.updateProfile(uid, { friends: {} })
                             .then(() => Promise.resolve({}))
                             .catch(err => Promise.reject(err));
 
@@ -150,6 +150,30 @@ const user = {
 
     offStatus(fid) {
         return rtdb.ref(`users/${fid}`).off('value');
+    },
+
+    joinGroup(uid, gid) {
+        const group = `groups.${gid}`
+        return this.updateProfile(uid, { [group]: true });
+    },
+
+    getGroups(uid) {
+        return db.collection('users').doc(uid).get()
+            .then(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+
+                    if (data.groups == null)
+                        return this.updateProfile(uid, { groups: {} })
+                            .then(() => Promise.resolve({}))
+                            .catch(err => Promise.reject(err));
+
+                    return Promise.resolve(data.groups);
+                }
+                else 
+                    return Promise.reject(new Error(`User ${uid} doesn't exist.`));
+            })
+            .catch(err => Promise.reject(err)); 
     }
 }
 

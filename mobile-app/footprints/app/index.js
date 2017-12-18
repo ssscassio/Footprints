@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {
     AsyncStorage,
-    PermissionsAndroid
+    PermissionsAndroid,
 } from 'react-native';
 import { NavigationProvider, StackNavigation } from "@expo/ex-navigation";
 import Router from "./router";

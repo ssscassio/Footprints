@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet} from "react-native";
+import { View, Text, StyleSheet, BackHandler } from "react-native";
 import TabViewFooter from "../../components/TabViewFooter";
 import Router from "../../router";
 import MapContainer from "../../containers/MapContainer";
@@ -11,6 +11,20 @@ class HomeScreen extends Component {
     constructor(props) {
         super(props);
 
+    }
+    
+    componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            if (this.props.navigator.getCurrentIndex() > 1) {
+                this.props.navigator.pop();
+                return true;
+            }
+            else BackHandler.exitApp();
+        });
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress');
     }
 
     popScreen() {

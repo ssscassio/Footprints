@@ -6,7 +6,7 @@ import {
     TextInput,
     FlatList,
     Image,
-    ActivityIndicator
+    ActivityIndicator,
 } from "react-native";
 import Router from "../../router";
 import Colors from '../../config/colors';

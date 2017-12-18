@@ -27,7 +27,8 @@ const geolocationOptions = {
 };
 const geolocationOptionsHigh = {
     enableHighAccuracy: true,
-    timeout: 20000
+    timeout: 20000,
+    maximumAge: 0
 };
 
 class MapContainer extends Component {
@@ -57,7 +58,9 @@ class MapContainer extends Component {
     }
 
     animateTo(coords) {
-        this._map.animateToRegion(coords);
+        if (this._map != null) {
+            this._map.animateToRegion(coords);
+        }
     }
 
     componentDidMount() {
@@ -73,60 +76,61 @@ class MapContainer extends Component {
             preventBackClick: true //true => To prevent the location services popup from closing when it is clicked back button
         }).then((success) => {
             console.log(success); // success => {alreadyEnabled: false, enabled: true, status: "enabled"}
-            navigator.geolocation.getCurrentPosition(
+            const myUID = firebase.auth().currentUser.uid;
+            this._watchID = navigator.geolocation.watchPosition(
                 (position) => {
                     this._setCoords(position.coords);
                     if (firebase.auth().currentUser != null) {
                         User.updateStatus(firebase.auth().currentUser.uid, { location: position });
-
-                        User.getConfirmedFriends(firebase.auth().currentUser.uid)
-                        .then(friends => {
-                            return Promise.all(
-                                Object.keys(friends).map(fid => User.getProfile(fid))
-                            )
-                            .then(values => {
-                                const res = values.reduce((acc, val) => {
-                                    acc[val.id] = val.profile_picture;
-                                    return acc;
-                                }, {});
-                                return Promise.resolve(res);
-                            });
-                        })
-                        .then(friends => {
-                            const ids = Object.keys(friends);
-                            ids.forEach(id => {
-                                User.offStatus(id);
-                                User.onStatus(id, (err, data) => {
-                                    if (err) {
-                                        console.log(err);
-                                        return;
-                                    }
-                                    const copy = this.state.friendsLocations;
-                                    const coords = {
-                                        photoURL: friends[id],
-                                        latitude: data.location.coords.latitude,
-                                        longitude: data.location.coords.longitude
-                                    };
-
-                                    if (this.state.friendsLocations[id] == null) {
-                                        copy[id] = coords;
-                                        this.setState({ friendsLocations: copy });
-                                        return;
-                                    }
-                                    if (coords.latitude !== this.state.friendsLocations[id].latitude) {
-                                        copy[id] = coords;
-                                        this.setState({ friendsLocations: copy });
-                                        return;
-                                    }
-                                });
-                            });
-                        })
-                        .catch(err => console.log(err));    
                     }
                 },
                 error => console.log(error),
                 geolocationOptionsHigh
             );
+
+            User.getConfirmedFriends(myUID)
+            .then(friends => {
+                return Promise.all(
+                    Object.keys(friends).map(fid => User.getProfile(fid))
+                )
+                .then(values => {
+                    const res = values.reduce((acc, val) => {
+                        acc[val.id] = val.profile_picture;
+                        return acc;
+                    }, {});
+                    return Promise.resolve(res);
+                });
+            })
+            .then(friends => {
+                const ids = Object.keys(friends);
+                ids.forEach(id => {
+                    User.offStatus(id);
+                    User.onStatus(id, (err, data) => {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+                        const copy = this.state.friendsLocations;
+                        const coords = {
+                            photoURL: friends[id],
+                            latitude: data.location.coords.latitude,
+                            longitude: data.location.coords.longitude
+                        };
+
+                        if (this.state.friendsLocations[id] == null) {
+                            copy[id] = coords;
+                            this.setState({ friendsLocations: copy });
+                            return;
+                        }
+                        if (coords.latitude !== this.state.friendsLocations[id].latitude) {
+                            copy[id] = coords;
+                            this.setState({ friendsLocations: copy });
+                            return;
+                        }
+                    });
+                });
+            })
+            .catch(err => console.log(err));    
         }).catch((error) => {
             console.log(error.message); // error.message => "disabled"
         });
@@ -134,20 +138,11 @@ class MapContainer extends Component {
 
     componentDidUpdate() {
         console.log('MapContainer did update');
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                if (position.coords.latitude != this.state.userLocation.latitude)
-                    this._setCoords(position.coords);
-                if (firebase.auth().currentUser != null)
-                    User.updateStatus(firebase.auth().currentUser.uid, { location: position });
-            },
-            error => console.log(error),
-            geolocationOptionsHigh
-        );
     }
 
     componentWillUnmount() {
         console.log('MapContainer will unmount');
+        navigator.geolocation.clearWatch(this._watchID);
         Object.keys(this.state.friendsLocations).forEach(fid => {
             User.offStatus(fid);
         }); 
@@ -158,11 +153,6 @@ class MapContainer extends Component {
             {
                 userLocation: coords,
                 hasLocation: true
-            },
-            () => {
-                InteractionManager.runAfterInteractions(() => {
-                    this._map.animateToRegion(this.initialRegion);
-                });
             }
         );
     }
