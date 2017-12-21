@@ -42,6 +42,14 @@ class MapContainer extends Component {
 
         this.user = JSON.parse(props.user);
         this.markers = {};
+        this.startGroups = [{
+                id: '0',
+                name: 'Eu',
+                owner: this.user.uid,
+                participants: {
+                    [this.user.uid]: true
+                }
+            }];
 
         this.state = {
             userLocation: {
@@ -53,14 +61,7 @@ class MapContainer extends Component {
             viewY: new Animated.Value(0),
             showingGroupPeople: false,
             currentGroup: 0,
-            groups: [{
-                id: '0',
-                name: 'Eu',
-                owner: this.user.uid,
-                participants: {
-                    [this.user.uid]: true
-                }
-            }]
+            groups: this.startGroups
         };
 
         this.initialRegion = {
@@ -170,7 +171,7 @@ class MapContainer extends Component {
             return Promise.all(res);
         })
         .then(groups => {
-            const newList = this.state.groups.concat(groups);
+            const newList = this.startGroups.concat(groups);
             this.setState({ groups: newList });
         })
         .catch(err => console.log(err));
@@ -179,6 +180,19 @@ class MapContainer extends Component {
 
     componentDidUpdate() {
         console.log('MapContainer did update');
+        const myUID = this.user.uid;
+        User.getGroups(myUID)
+        .then(groups => {
+            const res = Object.keys(groups).map(gid => Group.getGroup(gid));
+            return Promise.all(res);
+        })
+        .then(groups => {
+            const newList = this.startGroups.concat(groups);
+            if (newList.length !== this.state.groups.length) {
+                this.setState({ groups: newList });
+            }
+        })
+        .catch(err => console.log(err));
     }
 
     componentWillUnmount() {
