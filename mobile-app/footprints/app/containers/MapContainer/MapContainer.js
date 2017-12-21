@@ -110,7 +110,7 @@ class MapContainer extends Component {
 
             User.getStatus(myUID)
             .then(myStatus => {
-                this.setState({ myBattery: myStatus.battery });
+                this.setState({ myBattery: myStatus.battery ? myStatus.battery : null });
             })
             .catch(err => console.log(err));
 
@@ -136,14 +136,16 @@ class MapContainer extends Component {
                             console.log(err);
                             return;
                         }
+                        if (data == null) data = {};
+
                         const copy = this.state.friends;
                         const coords = {
-                            battery: data.battery,
+                            battery: data.battery ? data.battery : null,
                             id: id,
                             name: friends[id].name.split(' ')[0],
                             photoURL: friends[id].photoURL,
-                            latitude: data.location.coords.latitude,
-                            longitude: data.location.coords.longitude
+                            latitude: data.location ? data.location.coords.latitude : 0,
+                            longitude: data.location ? data.location.coords.longitude : 0
                         };
 
                         if (this.state.friends[id] == null || coords.latitude !== this.state.friends[id].latitude) {
@@ -268,7 +270,10 @@ class MapContainer extends Component {
     }
 
     _previousGroup = () => {
-        this.setState({ currentGroup: Math.abs((this.state.currentGroup-1)%this.state.groups.length) });
+        let res;
+        if (this.state.currentGroup === 0) res = this.state.groups.length-1;
+        else res = this.state.currentGroup-1;
+        this.setState({ currentGroup: res });
     }
 
     _goToUser = (user) => {
