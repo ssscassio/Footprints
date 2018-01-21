@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet} from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import TabViewFooter from "../../components/TabViewFooter";
 import Router from "../../router";
 import MapContainer from "../../containers/MapContainer";
@@ -13,25 +13,21 @@ class HomeScreen extends Component {
 
     }
 
-    popScreen() {
-        this.props.navigator.pop();
-    }
-
-    pushScreen(screen, props) {
-        this.props.navigator.push(Router.getRoute(screen, props));
-    }
-
     render() {
         return (
             <TabViewFooter tabBarPosition={"bottom"}>
                 <UserContainer 
                     navigator={this.props.navigator} 
-                    tabLabel="ios-people" />
+                    tabLabel="ios-people"
+                    user={this.props.user} />
                 <MapContainer 
-                    tabLabel="ios-pin" />
+                    tabLabel="ios-pin"
+                    user={this.props.user}
+                    lastCoords={this.props.lastCoords} />
                 <SettingsContainer 
                     navigator={this.props.navigator} 
-                    tabLabel="ios-cog" />
+                    tabLabel="ios-cog"
+                    user={this.props.user} />
             </TabViewFooter>
         );
     }

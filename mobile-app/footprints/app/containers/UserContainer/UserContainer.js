@@ -7,15 +7,14 @@ import {
     InteractionManager,
     Image,
     TouchableOpacity,
-    FlatList,
-    SectionList,
-    TouchableHighlight
+    TouchableHighlight,
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import Images from '../../config/images';
 import Colors from '../../config/colors';
 import Router from '../../router';
 import FriendsList from '../../components/FriendsList';
+import GroupsList from '../../components/GroupsList';
 import firebase from 'react-native-firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -27,34 +26,31 @@ class UserContainer extends Component {
             friends: true
         }
 
-        this.goToAddFriendScreen = this.goToAddFriendScreen.bind(this);
+        this.user = JSON.parse(props.user);
+
+        this._goToAddScreen = this._goToAddScreen.bind(this);
     }
 
     componentDidMount() {
         console.log('UserContainer Did Mount');
+       
     }
 
     componentDidUpdate() {
         console.log('UserContainer Did Update')        
     }
 
-    _keyExtractor = (item, index) => item.key || index;
-
-    goToAddFriendScreen () {
-        this.props.navigator.push(Router.getRoute('addFriend'));
+    componentWillUnmount() {
+        console.log('UserContainer will unmount');
     }
 
-    renderItem = ({item}) => {
-        const picture = item.profile_picture ? {uri: item.profile_picture} : Images.gpsIcon
-        return (
-            <TouchableOpacity style={styles.group}>
-                <Image style={styles.groupIcon} source={picture} />
-                <View style={styles.groupText}>
-                    <Text numberOfLines={1} style={styles.groupName}>{item.name}</Text>
-                    <Text numberOfLines={1} style={styles.groupPeople}>{item.email}</Text>
-                </View>
-            </TouchableOpacity> 
-        );
+    _keyExtractor = (item, index) => item.key || index;
+
+    _goToAddScreen (isFriends) {
+        if (isFriends)
+            this.props.navigator.push(Router.getRoute('addFriend', { user: this.props.user }));
+        else 
+            this.props.navigator.push(Router.getRoute('createGroup', { user: this.props.user }));
     }
 
     render() {
@@ -95,17 +91,8 @@ class UserContainer extends Component {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.groupList}>
-                        { !this.state.friends &&
-                            <FlatList 
-                                data={[ {name: 'grupo 1', people: 'p1p2p3'}, 
-                                        {name: 'grupo 2', people: 'p1p2p3'},
-                                        {name: 'grupo 3', people: 'p1p2p3'}
-                                    ]}
-                                keyExtractor={this._keyExtractor}
-                                renderItem={this.renderItem}
-                            />
-                        }
-                        { this.state.friends && <FriendsList /> }
+                        { !this.state.friends && <GroupsList user={this.props.user} /> }
+                        { this.state.friends && <FriendsList user={this.props.user} /> }
                         <View
                             elevation={3}
                             style={{
@@ -128,7 +115,7 @@ class UserContainer extends Component {
                             activeOpacity={1}
                             underlayColor={Colors.lightPrimaryColor}
                             backgroundColor={"transparent"} 
-                            onPress={this.goToAddFriendScreen}/>
+                            onPress={() => this._goToAddScreen(this.state.friends)}/>
                         </View>
                     </View>
                 </View>
@@ -214,27 +201,6 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
         backgroundColor: 'white',
-    },
-    group: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        paddingLeft: 10,
-    },
-    groupIcon: {
-        width: 30,
-        height: 30
-    },
-    groupText: {
-        padding: 10
-    },
-    groupName: {
-        fontSize: 18,
-        color: Colors.darkPrimaryColor
-    },
-    groupPeople: {
-        width: 300
     },
 });
 

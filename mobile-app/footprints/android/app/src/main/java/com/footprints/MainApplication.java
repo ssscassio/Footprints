@@ -3,10 +3,14 @@ package com.footprints;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.robinpowered.react.battery.DeviceBatteryPackage;
+import com.showlocationservicesdialogbox.LocationServicesDialogBoxPackage;
+import com.pilloxa.backgroundjob.BackgroundJobPackage;
 import co.apptailor.googlesignin.RNGoogleSigninPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
+import io.invertase.firebase.database.RNFirebaseDatabasePackage;
 import com.BV.LinearGradient.LinearGradientPackage;
 import com.airbnb.android.react.maps.MapsPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -40,6 +44,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new DeviceBatteryPackage(),
+            new LocationServicesDialogBoxPackage(),
+            new BackgroundJobPackage(),
             new RNGoogleSigninPackage(),
           new RNFirebasePackage(),
           new LinearGradientPackage(),
@@ -47,6 +54,7 @@ public class MainApplication extends Application implements ReactApplication {
           new VectorIconsPackage(),
           new RNFirebaseAuthPackage(),
           new RNFirebaseFirestorePackage(),
+          new RNFirebaseDatabasePackage(),
           new FBSDKPackage(mCallbackManager)
       );
     }

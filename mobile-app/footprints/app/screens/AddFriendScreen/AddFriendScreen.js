@@ -6,10 +6,11 @@ import {
     TextInput,
     FlatList,
     Image,
-    ActivityIndicator
+    ActivityIndicator,
 } from "react-native";
 import Router from "../../router";
 import Colors from '../../config/colors';
+import User from '../../lib/user';
 import firebase from 'react-native-firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -23,33 +24,28 @@ class AddFriendScreen extends Component {
             loading: false,
             users: []
         }
-        this.myFriends = [];
+        this.myFriends = {};
+
+        this.user = JSON.parse(this.props.user);
     }
 
     componentDidMount() {
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
         
-        firebase.firestore().collection('users').doc(myUID).get()
-            .then(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    if (data.friends != null) {
-                        this.myFriends = data.friends;
-                        console.log(this.myFriends);
-                    }
-                }
+        User.getProfile(myUID)
+            .then(data => {
+                this.myFriends = data.friends;
+                console.log(this.myFriends);
             })
-            .catch(err => {
-                console.log(err);
-            });
+            .catch(err => console.log(err));
     }
 
     _keyExtractor = (item, index) => {
-        return item.key;        
+        return item.id || index;        
     }
 
-    _onAdd = (friendId, friendsFriends) => {
-        const myUID = firebase.auth().currentUser.uid;
+    _onAdd = (friendId) => {
+        const myUID = this.user.uid;
         const db = firebase.firestore();
         this.setState({ loading: true });
         this.myFriends = Object.assign(this.myFriends, {
@@ -59,23 +55,11 @@ class AddFriendScreen extends Component {
             }
         });
 
-        friendsFriends = Object.assign(friendsFriends || {}, {
-            [myUID]: {
-                accepted: false,
-                pending: true
-            }
-        });
-
-        const myRef = db.collection('users').doc(myUID);
-        const friendRef = db.collection('users').doc(friendId);
-
-        Promise.all([
-            myRef.update({friends: this.myFriends}),
-            friendRef.update({friends: friendsFriends})
-        ]).then(() => {
-            this._onChangeText(this.state.text);
-            this.setState({ loading: false });
-        })
+        User.addFriend(myUID, friendId)
+            .then(() => {
+                this._onChangeText(this.state.text);
+                this.setState({ loading: false })
+            }).catch(err => console.log(err));
     }
 
     _renderItem = ({item}) => {
@@ -94,7 +78,7 @@ class AddFriendScreen extends Component {
                         size={25}
                         color={item.disabled ? 'gray': 'green'}
                         backgroundColor={'transparent'}
-                        onPress={() => this._onAdd(item.key, item.friends)}
+                        onPress={() => this._onAdd(item.id)}
                         disabled={item.disabled}
                     />
                 </View>
@@ -103,7 +87,7 @@ class AddFriendScreen extends Component {
     }
 
     _onChangeText = (text) => {
-        const myUID = firebase.auth().currentUser.uid;
+        const myUID = this.user.uid;
         const db = firebase.firestore();
 
         this.setState({ text });
@@ -117,7 +101,7 @@ class AddFriendScreen extends Component {
             .then((snapshot) => {
                 const users = snapshot.docs.map(doc => {
                     return {
-                        key: doc.id, 
+                        id: doc.id, 
                         photo: doc.data().profile_picture,  
                         name: doc.data().name, 
                         email: doc.data().email,
@@ -126,11 +110,9 @@ class AddFriendScreen extends Component {
                     }
                 });
 
-                this.setState({ users: users.filter(user => user.key !== myUID) });
+                this.setState({ users: users.filter(user => user.id !== myUID) });
             })
-            .catch((err) => {
-                console.log(err);
-            });
+            .catch(err => console.log(err));
     }
 
     render() {

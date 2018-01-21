@@ -1,4 +1,10 @@
 rootProject.name = 'footprints'
+include ':react-native-device-battery'
+project(':react-native-device-battery').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-device-battery/android')
+include ':react-native-android-location-services-dialog-box'
+project(':react-native-android-location-services-dialog-box').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-android-location-services-dialog-box/android')
+include ':react-native-background-job'
+project(':react-native-background-job').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-background-job/android')
 include ':react-native-google-signin'
 project(':react-native-google-signin').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-google-signin/android')
 include ':react-native-fbsdk'
