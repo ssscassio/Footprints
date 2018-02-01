@@ -3763,10 +3763,6 @@ react-native-background-job@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/react-native-background-job/-/react-native-background-job-2.0.1.tgz#9cdce33a8460ab9d9a6d393ec8fd4181116c131d"
 
-react-native-device-battery@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-device-battery/-/react-native-device-battery-0.1.0.tgz#4baf2d2870d3564e5329675ed677c614d958d76c"
-
 "react-native-device-battery@git+ssh://git@github.com/robinpowered/react-native-device-battery.git#b7cc53a51810389c226efec8da9e45a38e49c2ca":
   version "0.1.0"
   resolved "git+ssh://git@github.com/robinpowered/react-native-device-battery.git#b7cc53a51810389c226efec8da9e45a38e49c2ca"

@@ -53,6 +53,10 @@ class UserContainer extends Component {
             this.props.navigator.push(Router.getRoute('createGroup', { user: this.props.user }));
     }
 
+    _goToGroupScreen = (group) => {
+        this.props.navigator.push(Router.getRoute('group', { group }));
+    }
+
     render() {
         console.log('UserContainer Render');
         return (
@@ -91,7 +95,7 @@ class UserContainer extends Component {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.groupList}>
-                        { !this.state.friends && <GroupsList user={this.props.user} /> }
+                        { !this.state.friends && <GroupsList user={this.props.user} goToGroup={(group)=>this._goToGroupScreen(group)}/> }
                         { this.state.friends && <FriendsList user={this.props.user} /> }
                         <View
                             elevation={3}

@@ -59,7 +59,9 @@ class GroupsList extends Component {
 
     _renderItem = ({item}) => {
         return (
-            <TouchableOpacity style={styles.group}>
+            <TouchableOpacity
+                onPress={()=>this.props.goToGroup(item)}
+                style={styles.group}>
                 <Image style={styles.groupIcon} source={Images.gpsIcon} />
                 <View style={styles.groupTextGroup}>
                     <Text numberOfLines={1} style={styles.groupName}>{item.name}</Text>

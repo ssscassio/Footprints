@@ -3,7 +3,7 @@ import { createRouter } from "@expo/ex-navigation";
 import HomeScreen from "./screens/HomeScreen";
 import LoginScreen from "./screens/LoginScreen";
 import AddFriendScreen from "./screens/AddFriendScreen";
-import { CreateGroupScreen, GroupNameScreen } from "./screens/CreateGroupScreen";
+import { CreateGroupScreen, GroupNameScreen, GroupScreen } from "./screens/CreateGroupScreen";
 
 const Router = createRouter(() => ({
     home: () => HomeScreen,
@@ -11,6 +11,7 @@ const Router = createRouter(() => ({
     addFriend: () => AddFriendScreen,
     createGroup: () => CreateGroupScreen,
     groupName: () => GroupNameScreen,
+    group: () => GroupScreen
 }));
 
 export default Router;
