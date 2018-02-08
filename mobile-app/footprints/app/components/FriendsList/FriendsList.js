@@ -108,8 +108,15 @@ class FriendsList extends Component {
     }
 
     _renderItem = ({item}) => {
+        const userData = {
+            uid: item.id,
+            displayName: item.name,
+            email: item.email,
+            photoURL: item.profile_picture
+        }
+
         return (
-            <TouchableOpacity style={styles.friend}>
+            <TouchableOpacity style={styles.friend} onPress={() => this.props.navigator.push(Router.getRoute('friend', { user: JSON.stringify(userData) }))}>
                 <Image style={styles.friendIcon} source={{uri: item.profile_picture}} />
                 <View style={styles.friendTextGroup}>
                     <Text numberOfLines={1} style={styles.friendName}>{item.name}</Text>

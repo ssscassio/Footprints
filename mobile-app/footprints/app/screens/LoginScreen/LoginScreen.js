@@ -30,20 +30,39 @@ class LoginScreen extends Component {
     }
 
     onLogin = (user) => {
-        console.log(user.photoURL);
-        console.log(user.displayName);
-        console.log(user.email);
-        console.log(user.uid);
+        let userCopy = {};
+        if (user.providerData != null ) {
+            userCopy.photoURL = user.providerData[0].photoURL;
+        }
+        else userCopy.photoURL = user.photoURL;
+
+        userCopy.displayName = user.displayName;
+        userCopy.email = user.email;
+        userCopy.uid = user.uid;
+
+        console.log(user.providerData);
+        console.log(userCopy.photoURL);
+        console.log(userCopy.displayName);
+        console.log(userCopy.email);
+        console.log(userCopy.uid);
         
-        User.getProfile(user.uid)
+        User.getProfile(userCopy.uid)
             .then(() => {
-                this.props.navigator.replace(Router.getRoute('home', { user: JSON.stringify(user) }));
+                User.updateProfile(userCopy.uid, { profile_picture: userCopy.photoURL })
+                    .then(() => {
+                        this.props.navigator.replace(Router.getRoute('home', { user: JSON.stringify(userCopy) }));
+                    })
+                    .catch(err => {
+                        this.setState({ loading: false });
+                        console.log(err);
+                    })
+                        // this.props.navigator.replace(Router.getRoute('home', { user: JSON.stringify(user) }));
             })
             .catch(err => {
                 // create new user if it doesn't exist
-                User.newProfile(user.uid, user.displayName, user.email, user.photoURL)
+                User.newProfile(userCopy.uid, userCopy.displayName, userCopy.email, useCopy.photoURL)
                     .then(() => {
-                        this.props.navigator.replace(Router.getRoute('home', { user: JSON.stringify(user) }));
+                        this.props.navigator.replace(Router.getRoute('home', { user: JSON.stringify(userCopy) }));
                     })
                     .catch(err => {
                         this.setState({ loading: false });

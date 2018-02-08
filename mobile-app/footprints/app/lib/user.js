@@ -21,7 +21,8 @@ const user = {
             name,
             email,
             profile_picture,
-            friends
+            friends,
+            alerts: {}
         });
     },
 
@@ -30,7 +31,8 @@ const user = {
             name,
             email,
             profile_picture,
-            friends: {}
+            friends: {},
+            alerts: {}
         }); 
     },
 
@@ -174,6 +176,47 @@ const user = {
                     return Promise.reject(new Error(`User ${uid} doesn't exist.`));
             })
             .catch(err => Promise.reject(err)); 
+    },
+
+    getAlerts(uid) {
+        return db.collection('users').doc(uid).get()
+            .then(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+
+                    if (data.alerts == null) {
+                        return this.updateProfile(uid, { alerts: {} })
+                            .then(() => Promise.resolve({}))
+                            .catch(err => Promise.reject(err));
+                    } 
+
+                    return Promise.resolve(data.alerts);
+                }
+                else {
+                    return Promise.reject(new Error(`User ${uid} doesn't exist.`));
+                }
+            })
+            .catch(err => Promise.reject(err));
+    },
+
+    setBatteryAlert(uid, fid, value) {
+        const batteryField = `alerts.${fid}.battery`;
+
+        return this.updateProfile(uid, { [batteryField]: value });
+    },
+
+    getBatteryAlert(uid, fid) {
+        return this.getProfile(uid)
+            .then(data => {
+                if (data.alerts == null || data.alerts[fid] == null) {
+                    return this.updateProfile(uid, { [`alerts.${fid}.battery`]: false })
+                            .then(() => Promise.resolve({ battery: false }))
+                            .catch(err => Promise.reject(err));
+                }
+
+                return Promise.resolve(data.alerts[fid]);
+            })
+            .catch(err => Promise.reject(err));
     }
 }
 

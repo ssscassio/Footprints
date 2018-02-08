@@ -96,7 +96,7 @@ class UserContainer extends Component {
                     </View>
                     <View style={styles.groupList}>
                         { !this.state.friends && <GroupsList user={this.props.user} goToGroup={(group)=>this._goToGroupScreen(group)}/> }
-                        { this.state.friends && <FriendsList user={this.props.user} /> }
+                        { this.state.friends && <FriendsList navigator={this.props.navigator} user={this.props.user} /> }
                         <View
                             elevation={3}
                             style={{
@@ -194,13 +194,13 @@ const styles = StyleSheet.create({
         color: 'black'
     },
     groupList: {
-        flex: 3,
+        flex: 5,
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'stretch'
     },
     items: {
-        flex: 1,
+        flex: 2,
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',

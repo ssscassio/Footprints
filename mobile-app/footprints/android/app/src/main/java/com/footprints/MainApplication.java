@@ -3,6 +3,7 @@ package com.footprints;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 import com.robinpowered.react.battery.DeviceBatteryPackage;
 import com.showlocationservicesdialogbox.LocationServicesDialogBoxPackage;
 import com.pilloxa.backgroundjob.BackgroundJobPackage;
@@ -44,6 +45,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactNativePushNotificationPackage(),
             new DeviceBatteryPackage(),
             new LocationServicesDialogBoxPackage(),
             new BackgroundJobPackage(),

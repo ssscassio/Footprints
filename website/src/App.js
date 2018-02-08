@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import GoogleMap from 'google-map-react';
+import TimeAgo from 'react-timeago';
+import brStrings from 'react-timeago/lib/language-strings/pt-br';
+import buildFormatter from 'react-timeago/lib/formatters/buildFormatter';
 import {googleProvider, auth, facebookProvider, db} from './fire.js';
 import './App.css';
 
 const USER_KEY = 'user_key';
+
+const formatter = buildFormatter(brStrings);
 
 const Comp = ({ text, photoURL }) => <div className="PhotoContainer"><img className="Photo" alt={text} src={photoURL}/></div>;
 
@@ -69,6 +74,7 @@ class App extends Component {
   renderMap() {
     const coords = this.state.data ? this.state.data.location.coords : {latitude: 0, longitude: 0};
     const photoURL = this.state.user.providerData[0] ? this.state.user.providerData[0].photoURL : this.state.user.photoURL;
+    
     return (
       <div className="Map">
         <GoogleMap
@@ -90,6 +96,10 @@ class App extends Component {
   }
 
   render() {
+    const battery = this.state.data ? this.state.data.battery : { level: -1, charging: false };
+    const timestamp = this.state.data ? this.state.data.location.timestamp : new Date().getTime();
+
+
     return (
       <div className="App">
         <header className="App-header">
@@ -98,6 +108,8 @@ class App extends Component {
         {this.state.user ? 
           <div className="MapScreen">
             <button className="LogoutBtn" onClick={this.logout}>Log out</button>
+            <div><span><b>Última atualização: </b></span><TimeAgo date={timestamp} formatter={formatter}/></div>
+            <div><span><b>Nível de bateria: </b></span>{battery.level === -1 ? "?" : Math.floor(battery.level*100)}%</div>
             {this.renderMap()}
           </div>
           : 

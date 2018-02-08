@@ -11,16 +11,50 @@ import { NavigationProvider, StackNavigation } from "@expo/ex-navigation";
 import Router from "./router";
 import BackgroundJob from "react-native-background-job";
 import DeviceBattery from 'react-native-device-battery';
+import PushNotification from 'react-native-push-notification';
 import firebase from 'react-native-firebase';
 import User from './lib/user';
 import Auth from './lib/Auth';
 
 const jobKey = 'locationService';
+const BATTERY_SWITCH_KEY = 'battery-switch-key';
 
 BackgroundJob.register({
     jobKey: jobKey,
     job: () => {
         console.log('job called');
+        AsyncStorage.getAllKeys().then(keys => {
+            keys = keys.filter(key => key.indexOf(BATTERY_SWITCH_KEY) != -1);
+            AsyncStorage.multiGet(keys).then(store => {
+                store.forEach(item => {
+                    let key = item[0];
+                    let value = JSON.parse(item[1]);
+
+                    const uid = value.uid;
+                    const watchingBattery = value.battery;
+                    const name = value.name;
+
+                    if (watchingBattery) {
+                        User.getStatus(uid).then(data => {
+                            if (data.battery != null) {
+                                const level = Math.floor(data.battery.level*100);
+                                const charging = data.battery.charging;
+
+                                if (level < 120) {
+                                    PushNotification.localNotification({
+                                        playSound: false,
+                                        title: `Alerta sobre ${name}`,
+                                        bigText: `${name} está com ${level}% de bateria e ${charging?"carregando":"descarregando"}.`,
+                                        message: `${name} está com ${level}% de bateria.`
+                                    });
+                                }
+                            }
+                        }).catch(err => console.log(err));
+                    }
+                });
+            });
+        });
+
         AsyncStorage.getItem('userData').then(userData => {
             if (userData == null) return;
             const user = JSON.parse(userData);
@@ -58,6 +92,12 @@ BackgroundJob.schedule({
     override: true,
     allowExecutionInForeground: true,
     timeout: 60*1000
+});
+
+PushNotification.configure({
+    onNotification: function(notification) {
+        console.log(notification);
+    }
 });
 
 class Footprints extends Component {

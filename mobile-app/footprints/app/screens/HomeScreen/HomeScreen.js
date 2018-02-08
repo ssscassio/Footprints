@@ -5,6 +5,7 @@ import Router from "../../router";
 import MapContainer from "../../containers/MapContainer";
 import SettingsContainer from "../../containers/SettingsContainer";
 import UserContainer from "../../containers/UserContainer";
+import ProfileContainer from "../../containers/ProfileContainer";
 
 class HomeScreen extends Component {
 
@@ -16,6 +17,10 @@ class HomeScreen extends Component {
     render() {
         return (
             <TabViewFooter tabBarPosition={"bottom"}>
+                <ProfileContainer 
+                    navigator={this.props.navigator} 
+                    tabLabel="ios-person"
+                    user={this.props.user} />
                 <UserContainer 
                     navigator={this.props.navigator} 
                     tabLabel="ios-people"
