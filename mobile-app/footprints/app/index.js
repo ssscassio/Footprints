@@ -40,7 +40,7 @@ BackgroundJob.register({
                                 const level = Math.floor(data.battery.level*100);
                                 const charging = data.battery.charging;
 
-                                if (level < 120) {
+                                if (level < 20) {
                                     PushNotification.localNotification({
                                         playSound: false,
                                         title: `Alerta sobre ${name}`,
